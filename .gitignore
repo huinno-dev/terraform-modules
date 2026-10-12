@@ -1,0 +1,29 @@
+# Provider / module caches
+**/.terraform/*
+.terragrunt-cache/
+
+# Modules don't pin providers; callers own their lock files.
+.terraform.lock.hcl
+
+# State
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+
+# Local overrides
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# Keys and certificates
+*.pem
+*.key
+# Self-signed example.com sample used by the cert module example.
+!modules/ncloud/terraform-ncloud-cert/example/cert/example.com/*.pem
+
+terraform-ncloud-cert

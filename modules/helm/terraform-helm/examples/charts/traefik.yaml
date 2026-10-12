@@ -1,0 +1,40 @@
+# Prometheus metrics (entrypoint `metrics`, port 9100) and the scrape
+# annotations are enabled by the chart defaults.
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+
+# With autoscaling on, the chart drops `deployment.replicas`.
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 60
+
+ports:
+  web:
+    nodePort: 32000
+    forwardedHeaders:
+      # Trust X-Forwarded-* only from the load balancer subnets.
+      trustedIPs:
+        - 10.0.0.0/8
+  websecure:
+    nodePort: 32443
+
+service:
+  spec:
+    type: NodePort
