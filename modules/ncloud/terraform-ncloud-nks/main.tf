@@ -10,8 +10,7 @@ resource "ncloud_nks_cluster" "this" {
   lb_private_subnet_no = var.lb_subnet_id
   lb_public_subnet_no  = var.public_lb_subnet_id
 
-  # `zone` must be omitted for a multi-zone (Regional) cluster.
-  regional = var.regional
+  regional = var.regional 
   zone     = var.regional ? null : var.az
 
   public_network        = var.public_network
@@ -64,40 +63,41 @@ resource "ncloud_nks_cluster" "this" {
 }
 
 resource "ncloud_nks_node_pool" "this" {
+  for_each = local.node_pools
+
   cluster_uuid   = ncloud_nks_cluster.this.uuid
-  node_pool_name = var.node_pool_name != "" ? var.node_pool_name : var.name
-  node_count     = var.node_count
-  k8s_version    = var.node_pool_version
+  node_pool_name = each.value.name
+  node_count     = each.value.node_count
+  k8s_version    = each.value.version
 
   # XEN / RHV node pools are sized by product code, KVM ones by spec code.
-  product_code     = local.is_kvm ? null : local.node_pool_product
-  server_spec_code = local.is_kvm ? local.node_pool_product : null
-  storage_size     = local.is_kvm ? var.storage_size : null
-  software_code    = local.node_pool_software
+  product_code     = local.is_kvm ? null : local.node_pool_products[each.key]
+  server_spec_code = local.is_kvm ? local.node_pool_products[each.key] : null
+  storage_size     = local.is_kvm ? each.value.storage_size : null
+  software_code    = local.node_pool_softwares[each.key]
 
-  subnet_no_list = local.node_pool_subnet_no_list
-  server_role_id = var.server_role_id
-  # Required only for a node pool inside a multi-zone (Regional) cluster.
-  zone = var.regional ? local.node_pool_zone : null
+  subnet_no_list = each.value.subnet_no_list
+  server_role_id = each.value.server_role_id
+  # Regional clusters only.
+  zone = var.regional ? each.value.zone : null
 
-  label = var.node_labels
-  taint = var.node_taints
+  label = each.value.node_labels
+  taint = each.value.node_taints
 
   autoscale {
-    enabled = var.enable_asg
-    min     = var.min
-    max     = var.max
+    enabled = each.value.enable_asg
+    min     = each.value.min
+    max     = each.value.max
   }
 
   timeouts {
-    create = var.node_pool_timeouts.create
-    update = var.node_pool_timeouts.update
-    delete = var.node_pool_timeouts.delete
+    create = try(each.value.timeouts.create, null)
+    update = try(each.value.timeouts.update, null)
+    delete = try(each.value.timeouts.delete, null)
   }
 }
 
-# Sub account authorisation through the ncp-auth ConfigMap. Clusters using
-# `auth_type = "API"` use `access_entries` on the cluster instead.
+# Sub account access for `CONFIG_MAP` auth (`API` uses `access_entries`).
 resource "kubernetes_config_map_v1" "this" {
   count = length(var.ncloud_auth_accounts) > 0 ? 1 : 0
 

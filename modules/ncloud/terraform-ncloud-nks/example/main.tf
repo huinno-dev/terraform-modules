@@ -14,11 +14,7 @@ module "nks" {
   az                  = "KR-1"
   network_plugin      = "cilium"
 
-  enable_asg = true
-  node_count = 1
-  min        = 1
-  max        = 2
-
+  # Defaults for `node_pools`.
   server_image_name = "ubuntu-22.04"
   storage_size      = 100
 
@@ -37,10 +33,47 @@ module "nks" {
     }
   }
 
-  node_labels = [
-    {
-      key   = "role"
-      value = "worker"
-    },
-  ]
+  node_pools = {
+    # Fixed 2 nodes: cilium-operator runs 2 replicas.
+    system = {
+      node_count = 2
+
+      node_labels = [
+        {
+          key   = "role"
+          value = "system"
+        },
+      ]
+    }
+
+    # Cluster Autoscaler, min..max.
+    worker = {
+      enable_asg = true
+      node_count = 2
+      min        = 2
+      max        = 5
+
+      selectors = {
+        filter1 = {
+          name  = "product_type"
+          value = ["STAND"]
+        }
+        filter2 = {
+          name  = "cpu_count"
+          value = ["4"]
+        }
+        filter3 = {
+          name  = "memory_size"
+          value = ["16GB"]
+        }
+      }
+
+      node_labels = [
+        {
+          key   = "role"
+          value = "worker"
+        },
+      ]
+    }
+  }
 }

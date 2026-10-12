@@ -13,26 +13,28 @@ data "ncloud_nks_versions" "this" {
   }
 }
 
-# Node pool image / spec lookup. `ncloud_nks_server_images` and
-# `ncloud_nks_server_products` are the NKS-specific data sources; the generic
-# `ncloud_server_image` / `ncloud_server_product` ones do not return the codes
-# NKS accepts.
+# Per node pool image / spec lookup. Use the NKS data sources; the generic
+# server ones return codes NKS rejects.
 data "ncloud_nks_server_images" "this" {
+  for_each = local.node_pools
+
   hypervisor_code = var.hypervisor_code
 
   filter {
     name   = "label"
-    values = [var.server_image_name]
+    values = [each.value.server_image_name]
     regex  = true
   }
 }
 
 data "ncloud_nks_server_products" "this" {
-  software_code = data.ncloud_nks_server_images.this.images[0].value
-  zone          = local.node_pool_zone
+  for_each = local.node_pools
+
+  software_code = data.ncloud_nks_server_images.this[each.key].images[0].value
+  zone          = each.value.zone
 
   dynamic "filter" {
-    for_each = var.selectors
+    for_each = each.value.selectors
     content {
       name   = filter.value.name
       values = filter.value.value

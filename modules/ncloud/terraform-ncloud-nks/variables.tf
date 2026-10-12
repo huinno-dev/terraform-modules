@@ -11,7 +11,7 @@ variable "cluster_version" {
 }
 
 variable "hypervisor_code" {
-  description = "Hypervisor code. `XEN` (default), `KVM` or `RHV`. `KVM` is only available on the public site in the KR region"
+  description = "`XEN` (default), `KVM` or `RHV`. `KVM`: public site, KR region only"
   type        = string
   default     = "XEN"
 
@@ -22,7 +22,7 @@ variable "hypervisor_code" {
 }
 
 variable "cluster_type" {
-  description = "Control plane sizing, expressed as the maximum node count. `10` or `50` for XEN/RHV, `250` for KVM"
+  description = "Control plane size as max nodes: `10`/`50` (XEN/RHV), `250` (KVM)"
   type        = string
   default     = ""
 }
@@ -40,7 +40,7 @@ variable "az" {
 }
 
 variable "regional" {
-  description = "Create a multi-zone (Regional) cluster. Only supported on the public site, and only for Kubernetes versions that support it"
+  description = "Multi-zone (Regional) cluster. Public site only"
   type        = bool
   default     = false
 }
@@ -106,36 +106,31 @@ variable "audit" {
 }
 
 variable "auth_type" {
-  description = "Authentication type for the cluster. `API` or `CONFIG_MAP`. Changing from `CONFIG_MAP` to `API` is allowed in place, any other change recreates the cluster"
+  description = "`API` or `CONFIG_MAP`. Only `CONFIG_MAP` to `API` changes in place; otherwise recreates"
   type        = string
   default     = null
 }
 
 variable "access_entries" {
-  description = <<-EOT
-    Access entries for cluster access management. Only honoured when
-    `auth_type` is `API`. Each entry supports `entry` (NRN, required),
-    `groups`, and `policies` (`type` and `scope` required, `namespaces`
-    optional).
-  EOT
+  description = "Access entries for `auth_type = API`. Keys: `entry` (required), `groups`, `policies` (`type`, `scope`, `namespaces`)"
   type        = any
   default     = []
 }
 
 variable "oidc" {
-  description = "OIDC configuration. Supports `issuer_url` and `client_id` (required) plus `username_claim`, `username_prefix`, `groups_claim`, `groups_prefix` and `required_claim`"
+  description = "OIDC config. Requires `issuer_url`, `client_id`"
   type        = any
   default     = null
 }
 
 variable "ip_acl_default_action" {
-  description = "Default action of the control plane IP ACL. `allow` or `deny`. Supported on the public and gov sites"
+  description = "Control plane IP ACL default: `allow` or `deny`"
   type        = string
   default     = null
 }
 
 variable "ip_acl" {
-  description = "Control plane IP ACL entries. Each entry supports `action` and `address` (required) and `comment`"
+  description = "Control plane IP ACL entries: `action`, `address`, `comment`"
   type = set(object({
     action  = string
     address = string
@@ -156,6 +151,12 @@ variable "cluster_timeouts" {
 
 # Node pool
 
+variable "node_pools" {
+  description = "Node pools by name. Empty creates a `default` pool from the node pool variables, which are also each pool's defaults"
+  type        = any
+  default     = {}
+}
+
 variable "node_pool_name" {
   description = "Node pool name. Defaults to `name`"
   type        = string
@@ -175,7 +176,7 @@ variable "node_pool_subnet_no_list" {
 }
 
 variable "node_pool_zone" {
-  description = "Zone the node pool is placed in. Defaults to `az`. Required for a node pool of a multi-zone (Regional) cluster"
+  description = "Node pool zone. Defaults to `az`"
   type        = string
   default     = ""
 }
@@ -187,7 +188,7 @@ variable "server_image_name" {
 }
 
 variable "selectors" {
-  description = "Filters narrowing down the `ncloud_nks_server_products` lookup. Each entry supports `name`, `value` (list) and `regex`"
+  description = "Node spec filters: `name`, `value` (list), `regex`"
   type        = any
   default     = {}
 }
@@ -228,25 +229,6 @@ variable "max" {
   default     = 1
 }
 
-variable "node_labels" {
-  description = "Labels applied to the node pool. Each entry requires `key` and `value`"
-  type = set(object({
-    key   = string
-    value = string
-  }))
-  default = null
-}
-
-variable "node_taints" {
-  description = "Taints applied to the node pool. Each entry requires `key`, `value` and `effect`"
-  type = set(object({
-    key    = string
-    value  = string
-    effect = string
-  }))
-  default = null
-}
-
 variable "node_pool_timeouts" {
   description = "Timeouts applied to the node pool resource"
   type = object({
@@ -258,7 +240,7 @@ variable "node_pool_timeouts" {
 }
 
 variable "ncloud_auth_accounts" {
-  description = "List of account maps to add to the `ncp-auth` ConfigMap. Only used when the cluster authenticates through `CONFIG_MAP`"
+  description = "Accounts for the `ncp-auth` ConfigMap (`CONFIG_MAP` auth)"
   type        = list(any)
   default     = []
 }

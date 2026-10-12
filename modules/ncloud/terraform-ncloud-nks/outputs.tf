@@ -51,27 +51,43 @@ output "cluster_host" {
   value       = data.ncloud_nks_kube_config.this.host
 }
 
+output "node_pools" {
+  description = "Node pools by key"
+  value = {
+    for k, p in ncloud_nks_node_pool.this : k => {
+      id            = p.id
+      name          = p.node_pool_name
+      instance_no   = p.instance_no
+      nodes         = p.nodes
+      product_code  = local.node_pool_products[k]
+      software_code = local.node_pool_softwares[k]
+    }
+  }
+}
+
+# `default` pool only; null when `node_pools` is set.
+
 output "node_pool_id" {
-  description = "The ID of the node pool (`cluster_uuid:node_pool_name`)"
-  value       = ncloud_nks_node_pool.this.id
+  description = "Node pool ID (`cluster_uuid:node_pool_name`)"
+  value       = try(ncloud_nks_node_pool.this["default"].id, null)
 }
 
 output "node_pool_instance_no" {
-  description = "The instance number of the node pool"
-  value       = ncloud_nks_node_pool.this.instance_no
+  description = "Node pool instance number"
+  value       = try(ncloud_nks_node_pool.this["default"].instance_no, null)
 }
 
 output "node_pool_nodes" {
-  description = "Running nodes in the node pool"
-  value       = ncloud_nks_node_pool.this.nodes
+  description = "Running nodes"
+  value       = try(ncloud_nks_node_pool.this["default"].nodes, null)
 }
 
 output "node_pool_product_code" {
-  description = "Product code (XEN/RHV) or server spec code (KVM) the node pool runs on"
-  value       = local.node_pool_product
+  description = "Product code (XEN/RHV) or spec code (KVM)"
+  value       = try(local.node_pool_products["default"], null)
 }
 
 output "node_pool_software_code" {
-  description = "Server image code the node pool runs"
-  value       = local.node_pool_software
+  description = "Server image code"
+  value       = try(local.node_pool_softwares["default"], null)
 }
