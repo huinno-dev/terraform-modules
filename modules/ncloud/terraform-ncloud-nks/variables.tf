@@ -152,7 +152,7 @@ variable "cluster_timeouts" {
 # Node pool
 
 variable "node_pools" {
-  description = "Node pools by name. Empty creates a `default` pool from the node pool variables, which are also each pool's defaults"
+  description = "Node pools by name, created as `<name>-<key>` (max 20 chars). Empty creates a `default` pool from the node pool variables, which are also each pool's defaults"
   type        = any
   default     = {}
 }

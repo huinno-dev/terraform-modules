@@ -53,7 +53,7 @@ locals {
   node_pools = {
     for k, v in local.node_pools_input : k => merge(
       local.default_node_pool,
-      { name = length(var.node_pools) > 0 ? k : local.default_node_pool.name },
+      { name = length(var.node_pools) > 0 ? "${var.name}-${k}" : local.default_node_pool.name },
       v,
     )
   }
