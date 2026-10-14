@@ -60,6 +60,15 @@ resource "ncloud_nks_cluster" "this" {
     update = var.cluster_timeouts.update
     delete = var.cluster_timeouts.delete
   }
+
+  lifecycle {
+    # Terraform can't grant the creator admin, so an API cluster without
+    # entries is unreachable.
+    precondition {
+      condition     = var.auth_type != "API" || length(var.access_entries) > 0
+      error_message = "auth_type API needs at least one access_entries item."
+    }
+  }
 }
 
 resource "ncloud_nks_node_pool" "this" {
@@ -99,7 +108,7 @@ resource "ncloud_nks_node_pool" "this" {
 
 # Sub account access for `CONFIG_MAP` auth (`API` uses `access_entries`).
 resource "kubernetes_config_map_v1" "this" {
-  count = length(var.ncloud_auth_accounts) > 0 ? 1 : 0
+  count = var.auth_type == "CONFIG_MAP" && length(var.ncloud_auth_accounts) > 0 ? 1 : 0
 
   metadata {
     name      = "ncp-auth"

@@ -108,7 +108,12 @@ variable "audit" {
 variable "auth_type" {
   description = "`API` or `CONFIG_MAP`. Only `CONFIG_MAP` to `API` changes in place; otherwise recreates"
   type        = string
-  default     = null
+  default     = "API"
+
+  validation {
+    condition     = contains(["API", "CONFIG_MAP"], var.auth_type)
+    error_message = "auth_type must be API or CONFIG_MAP."
+  }
 }
 
 variable "access_entries" {

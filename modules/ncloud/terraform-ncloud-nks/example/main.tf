@@ -14,6 +14,16 @@ module "nks" {
   az                  = "KR-1"
   network_plugin      = "cilium"
 
+  # NRN from the Sub Account console. Include the account running Terraform.
+  access_entries = [
+    {
+      entry = "nrn:GOV:IAM::<account-no>:SubAccount/<sub-account-id>"
+      policies = [
+        { type = "NKSClusterAdminPolicy", scope = "cluster" },
+      ]
+    },
+  ]
+
   # Defaults for `node_pools`.
   server_image_name = "ubuntu-22.04"
   storage_size      = 100
