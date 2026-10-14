@@ -105,19 +105,3 @@ resource "ncloud_nks_node_pool" "this" {
     delete = try(each.value.timeouts.delete, null)
   }
 }
-
-# Sub account access for `CONFIG_MAP` auth (`API` uses `access_entries`).
-resource "kubernetes_config_map_v1" "this" {
-  count = var.auth_type == "CONFIG_MAP" && length(var.ncloud_auth_accounts) > 0 ? 1 : 0
-
-  metadata {
-    name      = "ncp-auth"
-    namespace = "kube-system"
-  }
-
-  data = local.ncloud_auth_configmap_data
-
-  lifecycle {
-    ignore_changes = [data, metadata[0].labels, metadata[0].annotations]
-  }
-}

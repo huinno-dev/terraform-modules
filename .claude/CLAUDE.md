@@ -36,7 +36,7 @@ ncloud 예제의 `provider.tf`는 `ncloud_access_key`/`ncloud_secret_key` 변수
 ## NCloud 특이사항
 
 - NAT Gateway는 `usage_type = "NATGW"`인 전용 PUBLIC 서브넷(`nat_subnets`)이 필요하고 공인 IP를 자체 할당합니다. LB 서브넷은 `usage_type = "LOADB"`(private `lb_subnets` / public `public_lb_subnets`).
-- NKS: public·gov 사이트에서는 `lb_public_subnet_no`가 필수 → VPC 모듈의 `public_lb_subnets` 출력과 연결. 컨트롤 플레인 스펙 코드는 하이퍼바이저(XEN/RHV/KVM)별로 `locals.cluster_types`에 매핑. 노드풀 이미지/스펙은 범용 `ncloud_server_image`가 아니라 `ncloud_nks_server_images`/`ncloud_nks_server_products`로 조회해야 함. `ncloud_auth_accounts`를 주면 `kubernetes` 프로바이더로 configmap을 만들기 때문에 호출 측에서 kubernetes 프로바이더 설정이 필요.
+- NKS: public·gov 사이트에서는 `lb_public_subnet_no`가 필수 → VPC 모듈의 `public_lb_subnets` 출력과 연결. 컨트롤 플레인 스펙 코드는 하이퍼바이저(XEN/RHV/KVM)별로 `locals.cluster_types`에 매핑. 노드풀 이미지/스펙은 범용 `ncloud_server_image`가 아니라 `ncloud_nks_server_images`/`ncloud_nks_server_products`로 조회해야 함. 인증은 기본 `auth_type = API`이고 권한은 `access_entries`(ncloud API)로 준다. Terraform으로 만들면 생성자가 관리자로 자동 등록되지 않아 `access_entries`가 비면 precondition으로 막는다. `CONFIG_MAP` 클러스터의 `ncp-auth` ConfigMap은 kubernetes 프로바이더가 필요해서 `terraform-ncloud-nks-auth` 모듈(별도 Terragrunt 유닛, nks 출력을 dependency로 받음)로 분리했다. nks 모듈에 kubernetes 리소스를 다시 넣지 말 것.
 - **`terraform-ncloud-cert`는 지원 종료**(NCloud classic 인증서 리소스 지원 종료, 프로바이더 4.x에 없음). 코드는 이력 참고용으로만 유지합니다. VPC 인증서는 Certificate Manager에서 Terraform 밖으로 등록하고 `certificateNo`만 ALB 리스너의 `ssl_certificate_no`나 NKS Service 어노테이션으로 주입합니다. 자세한 내용은 [modules/ncloud/terraform-ncloud-cert/README.md](modules/ncloud/terraform-ncloud-cert/README.md). 이 모듈을 고치거나 다른 모듈에서 참조하지 마세요.
 
 ## 주의

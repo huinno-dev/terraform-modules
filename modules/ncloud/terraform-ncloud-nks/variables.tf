@@ -106,7 +106,7 @@ variable "audit" {
 }
 
 variable "auth_type" {
-  description = "`API` or `CONFIG_MAP`. Only `CONFIG_MAP` to `API` changes in place; otherwise recreates"
+  description = "`API` or `CONFIG_MAP` (users via the nks-auth module). Only `CONFIG_MAP` to `API` changes in place; otherwise recreates"
   type        = string
   default     = "API"
 
@@ -242,10 +242,4 @@ variable "node_pool_timeouts" {
     delete = optional(string)
   })
   default = {}
-}
-
-variable "ncloud_auth_accounts" {
-  description = "Accounts for the `ncp-auth` ConfigMap (`CONFIG_MAP` auth)"
-  type        = list(any)
-  default     = []
 }

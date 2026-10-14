@@ -61,8 +61,4 @@ locals {
   # `value` is the spec code on KVM, the product code on XEN / RHV.
   node_pool_products  = { for k, d in data.ncloud_nks_server_products.this : k => d.products[0].value }
   node_pool_softwares = { for k, d in data.ncloud_nks_server_images.this : k => d.images[0].value }
-
-  ncloud_auth_configmap_data = {
-    mapSubAccounts = yamlencode(var.ncloud_auth_accounts)
-  }
 }

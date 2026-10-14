@@ -16,7 +16,9 @@ Huinno 인프라 커스텀 Terraform 모듈.
 | [ncloud/terraform-ncloud-acg](modules/ncloud/terraform-ncloud-acg) | ACG와 inbound/outbound 규칙 | [example](modules/ncloud/terraform-ncloud-acg/example) |
 | [ncloud/terraform-ncloud-alb](modules/ncloud/terraform-ncloud-alb) | Load Balancer, 리스너, 타깃 그룹 | [example](modules/ncloud/terraform-ncloud-alb/example) |
 | [ncloud/terraform-ncloud-nas](modules/ncloud/terraform-ncloud-nas) | NAS 볼륨 | [example](modules/ncloud/terraform-ncloud-nas/example) |
-| [ncloud/terraform-ncloud-nks](modules/ncloud/terraform-ncloud-nks) | NKS 클러스터, 노드풀, (선택) `kube-system/ncp-auth` ConfigMap | [example](modules/ncloud/terraform-ncloud-nks/example) |
+| [ncloud/terraform-ncloud-nks](modules/ncloud/terraform-ncloud-nks) | NKS 클러스터, 노드풀, 액세스 항목(`auth_type = API`) | [example](modules/ncloud/terraform-ncloud-nks/example) |
+| [ncloud/terraform-ncloud-nks-alb-ingress](modules/ncloud/terraform-ncloud-nks-alb-ingress) | NKS ALB Ingress Controller용 Ingress(ALB 1개 → 백엔드 Service), `alb` IngressClass 기본값 해제 | [example](modules/ncloud/terraform-ncloud-nks-alb-ingress/example) |
+| [ncloud/terraform-ncloud-nks-auth](modules/ncloud/terraform-ncloud-nks-auth) | `CONFIG_MAP` 인증 클러스터의 `kube-system/ncp-auth` ConfigMap | [example](modules/ncloud/terraform-ncloud-nks-auth/example) |
 | [aws/terraform-aws-vpc](modules/aws/terraform-aws-vpc) | VPC(또는 기존 VPC 재사용), IGW, public·private 서브넷, NAT Gateway, Flow Log | [example](modules/aws/terraform-aws-vpc/example) |
 | [aws/terraform-aws-efs](modules/aws/terraform-aws-efs) | EFS 파일시스템, mount target, 전용 보안 그룹 | [example](modules/aws/terraform-aws-efs/example) |
 | [aws/terraform-aws-eip](modules/aws/terraform-aws-eip) | AZ당 EIP 1개 | [example](modules/aws/terraform-aws-eip/example) |
@@ -31,7 +33,7 @@ Huinno 인프라 커스텀 Terraform 모듈.
 | Terraform | `>= 1.5` |
 | `NaverCloudPlatform/ncloud` | `>= 4.0` |
 | `hashicorp/aws` | `>= 5.0` |
-| `hashicorp/kubernetes` | `>= 2.0` (NKS 모듈) |
+| `hashicorp/kubernetes` | `>= 2.0` (nks-auth), `>= 2.10` (nks-alb-ingress) |
 | `hashicorp/helm` | `>= 3.0` |
 | `argoproj-labs/argocd` | `>= 7.0` |
 
