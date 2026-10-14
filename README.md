@@ -15,6 +15,7 @@ Huinno 인프라 커스텀 Terraform 모듈.
 | [ncloud/terraform-ncloud-vpc](modules/ncloud/terraform-ncloud-vpc) | VPC(또는 기존 VPC 재사용), Network ACL, public·private·LB·NAT 서브넷, NAT Gateway, 라우트 테이블 | [example](modules/ncloud/terraform-ncloud-vpc/example) |
 | [ncloud/terraform-ncloud-acg](modules/ncloud/terraform-ncloud-acg) | ACG와 inbound/outbound 규칙 | [example](modules/ncloud/terraform-ncloud-acg/example) |
 | [ncloud/terraform-ncloud-alb](modules/ncloud/terraform-ncloud-alb) | Load Balancer, 리스너, 타깃 그룹 | [example](modules/ncloud/terraform-ncloud-alb/example) |
+| [ncloud/terraform-ncloud-public-ip](modules/ncloud/terraform-ncloud-public-ip) | 공인 IP (`prevent_destroy`). ALB 등과 수명을 분리해 재생성 시에도 같은 IP 유지 | [example](modules/ncloud/terraform-ncloud-public-ip/example) |
 | [ncloud/terraform-ncloud-nas](modules/ncloud/terraform-ncloud-nas) | NAS 볼륨 | [example](modules/ncloud/terraform-ncloud-nas/example) |
 | [ncloud/terraform-ncloud-nks](modules/ncloud/terraform-ncloud-nks) | NKS 클러스터, 노드풀, 액세스 항목(`auth_type = API`) | [example](modules/ncloud/terraform-ncloud-nks/example) |
 | [ncloud/terraform-ncloud-nks-alb-ingress](modules/ncloud/terraform-ncloud-nks-alb-ingress) | NKS ALB Ingress Controller용 Ingress(ALB 1개 → 백엔드 Service), `alb` IngressClass 기본값 해제 | [example](modules/ncloud/terraform-ncloud-nks-alb-ingress/example) |
