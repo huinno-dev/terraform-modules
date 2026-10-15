@@ -107,3 +107,17 @@ output "azs" {
   description = "A list of availability zones specified as argument to this module"
   value       = var.azs
 }
+
+output "subnet_ids" {
+  description = "IDs of the `subnets` entries by key, in `cidrs` order"
+  value = {
+    for k, s in var.subnets : k => [for i, _ in s.cidrs : ncloud_subnet.extra["${k}-${i}"].subnet_no]
+  }
+}
+
+output "subnet_cidr_blocks" {
+  description = "CIDR blocks of the `subnets` entries by key"
+  value = {
+    for k, s in var.subnets : k => [for i, _ in s.cidrs : ncloud_subnet.extra["${k}-${i}"].subnet]
+  }
+}

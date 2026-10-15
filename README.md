@@ -12,7 +12,7 @@ Huinno 인프라 커스텀 Terraform 모듈.
 
 | 모듈 | 만드는 것 | 예제 |
 |---|---|---|
-| [ncloud/terraform-ncloud-vpc](modules/ncloud/terraform-ncloud-vpc) | VPC(또는 기존 VPC 재사용), Network ACL, public·private·LB·NAT 서브넷, NAT Gateway, 라우트 테이블 | [example](modules/ncloud/terraform-ncloud-vpc/example) |
+| [ncloud/terraform-ncloud-vpc](modules/ncloud/terraform-ncloud-vpc) | VPC(또는 기존 VPC 재사용), Network ACL, public·private·LB·NAT 서브넷, 용도별 추가 서브넷(`subnets`), NAT Gateway, 라우트 테이블 | [example](modules/ncloud/terraform-ncloud-vpc/example) |
 | [ncloud/terraform-ncloud-acg](modules/ncloud/terraform-ncloud-acg) | ACG와 inbound/outbound 규칙 | [example](modules/ncloud/terraform-ncloud-acg/example) |
 | [ncloud/terraform-ncloud-alb](modules/ncloud/terraform-ncloud-alb) | Load Balancer, 리스너, 타깃 그룹 | [example](modules/ncloud/terraform-ncloud-alb/example) |
 | [ncloud/terraform-ncloud-public-ip](modules/ncloud/terraform-ncloud-public-ip) | 공인 IP (`prevent_destroy`). ALB 등과 수명을 분리해 재생성 시에도 같은 IP 유지 | [example](modules/ncloud/terraform-ncloud-public-ip/example) |

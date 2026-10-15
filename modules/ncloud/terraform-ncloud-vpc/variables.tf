@@ -111,3 +111,23 @@ variable "network_acl_outbound_rules" {
   type        = any
   default     = []
 }
+
+variable "subnets" {
+  description = "Additional subnets by purpose (e.g. `db`). `cidrs` are placed in `azs` order and named `<name>-<key>-<index>`. `type` is PRIVATE (default) or PUBLIC, `usage` is GEN (default) or LOADB; they share the module's route tables and Network ACL"
+  type = map(object({
+    cidrs = list(string)
+    type  = optional(string, "PRIVATE")
+    usage = optional(string, "GEN")
+  }))
+  default = {}
+
+  validation {
+    condition     = alltrue([for k, s in var.subnets : contains(["PRIVATE", "PUBLIC"], s.type) && contains(["GEN", "LOADB"], s.usage)])
+    error_message = "subnets[*].type must be PRIVATE or PUBLIC, and usage GEN or LOADB."
+  }
+
+  validation {
+    condition     = alltrue([for k in keys(var.subnets) : can(regex("^[a-z][a-z0-9-]*$", k))])
+    error_message = "subnets keys become part of the subnet name: lowercase letters, digits and -, starting with a letter."
+  }
+}

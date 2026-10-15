@@ -58,7 +58,7 @@ resource "ncloud_subnet" "public" {
 }
 
 resource "ncloud_route_table" "public" {
-  count = length(var.public_subnets) > 0 || length(var.public_lb_subnets) > 0 || local.nat_gateway_count > 0 ? 1 : 0
+  count = length(var.public_subnets) > 0 || length(var.public_lb_subnets) > 0 || local.nat_gateway_count > 0 || local.extra_public_subnet_count > 0 ? 1 : 0
 
   vpc_no                = data.ncloud_vpc.this.id
   supported_subnet_type = "PUBLIC"
@@ -181,4 +181,26 @@ resource "ncloud_route_table_association" "public_lb" {
 
   route_table_no = ncloud_route_table.public[0].id
   subnet_no      = ncloud_subnet.public_lb[count.index].id
+}
+
+# Additional subnets (`subnets`), attached to the module's public or private
+# route table by type.
+
+resource "ncloud_subnet" "extra" {
+  for_each = local.extra_subnets
+
+  name           = "${var.name}-${each.value.key}-${each.value.index}"
+  vpc_no         = data.ncloud_vpc.this.id
+  subnet         = each.value.cidr
+  zone           = element(var.azs, each.value.index)
+  network_acl_no = ncloud_network_acl.this.id
+  subnet_type    = each.value.type
+  usage_type     = each.value.usage
+}
+
+resource "ncloud_route_table_association" "extra" {
+  for_each = local.extra_subnets
+
+  route_table_no = each.value.type == "PUBLIC" ? ncloud_route_table.public[0].id : ncloud_route_table.private[each.value.index % local.private_route_table_count].id
+  subnet_no      = ncloud_subnet.extra[each.key].id
 }

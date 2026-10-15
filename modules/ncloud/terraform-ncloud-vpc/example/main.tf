@@ -14,6 +14,11 @@ module "vpc" {
   single_nat_gateway = true
   nat_subnets        = ["10.110.91.0/24"]
 
+  # Additional subnets by purpose; private + GEN unless set otherwise.
+  subnets = {
+    db = { cidrs = ["10.110.61.0/24", "10.110.62.0/24"] }
+  }
+
   network_acl_inbound_rules = [
     {
       priority    = 100
