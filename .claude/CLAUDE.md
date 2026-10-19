@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Huinno 인프라용 Terraform 커스텀 모듈 모음입니다. 루트 모듈(배포 단위)은 여기 없고, 다른 리포에서 Terragrunt로 이 모듈들을 불러 씁니다. 로컬에는 `tofu`와 `terragrunt`가 설치되어 있고 `terraform` 바이너리는 없습니다(`.terraform` 아래 프로바이더도 `registry.opentofu.org`에서 받은 것).
 
 레이아웃: `modules/<provider>/terraform-<provider>-<name>/`
-- `ncloud/` — 네이버 클라우드 VPC 환경(vpc, acg, alb, nas, nks, cert)
+- `ncloud/` — 네이버 클라우드 VPC 환경(vpc, acg, alb, nas, public-ip, mysql, redis, nks, nks-auth, nks-alb-ingress, cert)
 - `aws/` — vpc, efs, eip, data(조회 전용)
 - `helm/`, `argocd/` — 클러스터 위에 올리는 릴리스/애플리케이션
 
