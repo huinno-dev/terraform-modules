@@ -81,8 +81,32 @@ variable "image_product_code" {
   default     = null
 }
 
+# Spec codes differ only in the memory segment; `Mnnn` is the size rounded
+# down, so the code alone does not give the exact memory (`memory_size` in
+# `ncloud_redis_products` does, in bytes). vCPU is C004 for every size.
+# Spec codes are scoped to an image and its generation (G00x suffix): set
+# `image_product_code` to the image the codes were looked up with, or the
+# default image may reject them ("product code could not be found").
+#
+# G3 (AMD), image SW.VRDS.OS.LNX64.ROCKY.08.REDIS.B050.G003:
+#   SVR.VRDS.AMD.STAND.C004.M001.NET.SSD.B050.G003   1.5 GB
+#   SVR.VRDS.AMD.STAND.C004.M003.NET.SSD.B050.G003   3 GB
+#   SVR.VRDS.AMD.STAND.C004.M006.NET.SSD.B050.G003   6.4 GB
+#   SVR.VRDS.AMD.STAND.C004.M012.NET.SSD.B050.G003   12.8 GB
+#   SVR.VRDS.AMD.STAND.C004.M025.NET.SSD.B050.G003   25.6 GB
+#   SVR.VRDS.AMD.HIMEM.C004.M051.NET.SSD.B050.G003   51.2 GB
+#   SVR.VRDS.AMD.HIMEM.C004.M102.NET.SSD.B050.G003   102.4 GB
+#   SVR.VRDS.AMD.HIMEM.C004.M153.NET.SSD.B050.G003   153.6 GB
+#   SVR.VRDS.AMD.HIMEM.C004.M204.NET.SSD.B050.G003   204.8 GB
+#
+# G2, image SW.VRDS.OS.LNX64.ROCKY.0810.REDIS.B050:
+#   SVR.VRDS.STAND.C004.M001.NET.SSD.B050.G002   1.5 GB
+#   SVR.VRDS.STAND.C004.M003.NET.SSD.B050.G002   3 GB
+#   SVR.VRDS.STAND.C004.M006.NET.SSD.B050.G002   6.4 GB
+#   SVR.VRDS.STAND.C004.M012.NET.SSD.B050.G002   12.8 GB
+#   SVR.VRDS.STAND.C004.M025.NET.SSD.B050.G002   25.6 GB
 variable "product_code" {
-  description = "Server spec product code (`ncloud_redis_products`). Null uses the minimum spec"
+  description = "Server spec product code (`ncloud_redis_products`); sets the memory size. Null uses the minimum spec"
   type        = string
   default     = null
 }
