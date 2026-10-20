@@ -231,6 +231,26 @@ variable "private_table_routes" {
   default     = []
 }
 
+variable "subnets" {
+  description = "Additional subnets by purpose (e.g. `db`). `cidrs` are placed in `azs` order and named `<name>-<key>-<az>`. `type` is PRIVATE (default) or PUBLIC; they share the module's route tables. `tags` are merged on top of `tags`"
+  type = map(object({
+    cidrs = list(string)
+    type  = optional(string, "PRIVATE")
+    tags  = optional(map(string), {})
+  }))
+  default = {}
+
+  validation {
+    condition     = alltrue([for k, s in var.subnets : contains(["PRIVATE", "PUBLIC"], s.type)])
+    error_message = "subnets[*].type must be PRIVATE or PUBLIC."
+  }
+
+  validation {
+    condition     = alltrue([for k in keys(var.subnets) : can(regex("^[a-z][a-z0-9-]*$", k))])
+    error_message = "subnets keys become part of the subnet name: lowercase letters, digits and -, starting with a letter."
+  }
+}
+
 
 ################################################################################
 # Flow Log

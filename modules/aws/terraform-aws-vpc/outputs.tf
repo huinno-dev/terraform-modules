@@ -26,6 +26,20 @@ output "nat_public_ips" {
   value = aws_eip.nat.*.public_ip
 }
 
+output "subnet_ids" {
+  description = "IDs of the `subnets` entries by key, in `cidrs` order"
+  value = {
+    for k, s in var.subnets : k => [for i, _ in s.cidrs : aws_subnet.extra["${k}-${i}"].id]
+  }
+}
+
+output "subnet_cidr_blocks" {
+  description = "CIDR blocks of the `subnets` entries by key"
+  value = {
+    for k, s in var.subnets : k => [for i, _ in s.cidrs : aws_subnet.extra["${k}-${i}"].cidr_block]
+  }
+}
+
 output "azs" {
   description = "A list of availability zones specified as argument to this module"
   value       = var.azs

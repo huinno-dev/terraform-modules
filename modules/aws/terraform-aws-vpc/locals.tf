@@ -5,9 +5,25 @@ locals {
 
   nat_gateway_count = var.single_nat_gateway ? 1 : var.one_nat_gateway_per_az ? length(var.azs) : local.max_subnet_length
 
+  # `subnets` flattened to one entry per CIDR, keyed `<key>-<index>`.
+  extra_subnets = merge(concat([{}], [
+    for k, s in var.subnets : {
+      for i, cidr in s.cidrs : "${k}-${i}" => {
+        key   = k
+        index = i
+        cidr  = cidr
+        type  = s.type
+        tags  = s.tags
+      }
+    }
+  ])...)
+
+  extra_private_subnet_count = length([for s in local.extra_subnets : s if s.type == "PRIVATE"])
+  extra_public_subnet_count  = length([for s in local.extra_subnets : s if s.type == "PUBLIC"])
+
   # Private subnets get their own route table even without NAT; otherwise they
   # fall back to the VPC main route table and `private_table_routes` is dropped.
-  private_route_table_count = local.max_subnet_length > 0 ? (var.enable_nat_gateway ? local.nat_gateway_count : 1) : 0
+  private_route_table_count = (length(var.private_subnets) + local.extra_private_subnet_count) > 0 ? (var.enable_nat_gateway ? max(local.nat_gateway_count, 1) : 1) : 0
 
   nat_gateway_ips = split(
   ",",

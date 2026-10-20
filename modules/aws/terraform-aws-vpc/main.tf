@@ -91,7 +91,7 @@ resource "aws_subnet" "public" {
 }
 
 resource "aws_route_table" "public" {
-  count = length(var.public_subnets) > 0 ? 1 : 0
+  count = length(var.public_subnets) > 0 || local.extra_public_subnet_count > 0 ? 1 : 0
 
   vpc_id = data.aws_vpc.this.id
 
@@ -215,7 +215,9 @@ resource "aws_route_table" "private" {
   # Kept inline (not aws_route) because `private_table_routes` is inline too;
   # mixing the two makes them overwrite each other.
   dynamic "route" {
-    for_each = var.enable_nat_gateway ? [aws_nat_gateway.this[count.index].id] : []
+    # try(): with only `subnets` private entries there can be a route table
+    # but no NAT gateway (nat_gateway_count follows `private_subnets`).
+    for_each = var.enable_nat_gateway ? try([aws_nat_gateway.this[count.index].id], []) : []
     content {
       cidr_block     = "0.0.0.0/0"
       nat_gateway_id = route.value
@@ -259,5 +261,41 @@ resource "aws_route_table_association" "private" {
   route_table_id = element(
   aws_route_table.private.*.id,
   var.single_nat_gateway || !var.enable_nat_gateway ? 0 : count.index,
+  )
+}
+
+
+################################################################################
+# Additional subnets (`subnets`), attached to the module's public or private
+# route table by type.
+################################################################################
+
+resource "aws_subnet" "extra" {
+  for_each = local.extra_subnets
+
+  vpc_id                  = data.aws_vpc.this.id
+  cidr_block              = each.value.cidr
+  availability_zone       = length(regexall("^[a-z]{2}-", element(var.azs, each.value.index))) > 0 ? element(var.azs, each.value.index) : null
+  availability_zone_id    = length(regexall("^[a-z]{2}-", element(var.azs, each.value.index))) == 0 ? element(var.azs, each.value.index) : null
+  map_public_ip_on_launch = each.value.type == "PUBLIC" ? var.map_public_ip_on_launch : false
+
+  tags = merge(
+    {
+      "Name" = format("%s-%s-%s", var.name, each.value.key, element(var.azs, each.value.index))
+    },
+    var.tags,
+    each.value.tags,
+  )
+}
+
+resource "aws_route_table_association" "extra" {
+  for_each = local.extra_subnets
+
+  subnet_id = aws_subnet.extra[each.key].id
+  # element() wraps, so private entries spread over per-AZ route tables the
+  # same way `private_subnets` do.
+  route_table_id = each.value.type == "PUBLIC" ? aws_route_table.public[0].id : element(
+    aws_route_table.private.*.id,
+    var.single_nat_gateway || !var.enable_nat_gateway ? 0 : each.value.index,
   )
 }

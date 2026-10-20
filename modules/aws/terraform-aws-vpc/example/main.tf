@@ -12,6 +12,11 @@ module "vpc" {
   enable_nat_gateway = true
   single_nat_gateway = true
 
+  # Additional subnets by purpose; private unless set otherwise.
+  subnets = {
+    db = { cidrs = ["10.120.21.0/24", "10.120.22.0/24"] }
+  }
+
   tags = {
     Environment = "dev"
   }
